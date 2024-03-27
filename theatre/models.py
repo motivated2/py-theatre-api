@@ -131,3 +131,7 @@ class Ticket(models.Model):
         return (f"{self.performance} - "
                 f"{self.reservation} "
                 f"({self.row} - {self.seat})")
+
+    class Meta:
+        unique_together = ("performance", "row", "seat")
+        ordering = ["row", "seat"]
