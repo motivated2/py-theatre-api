@@ -1,4 +1,7 @@
+from django.db import transaction
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+
 from theatre.models import (
     Actor,
     Genre,
@@ -63,16 +66,6 @@ class PlayDetailSerializer(PlaySerializer):
             "description",
             "actors",
             "genres"
-        )
-
-
-class ReservationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Reservation
-        fields = (
-            "id",
-            "created_at",
-            "user"
         )
 
 
@@ -144,6 +137,16 @@ class PerformanceDetailSerializer(PerformanceSerializer):
 
 
 class TicketSerializer(serializers.ModelSerializer):
+    def validate(self, attrs):
+        data = super(TicketSerializer, self).validate(attrs=attrs)
+        Ticket.validate_ticket(
+            attrs["row"],
+            attrs["seat"],
+            attrs["performance"],
+            error_to_raise=ValidationError
+        )
+        return data
+
     class Meta:
         model = Ticket
         fields = (
@@ -153,3 +156,29 @@ class TicketSerializer(serializers.ModelSerializer):
             "performance",
             "reservation",
         )
+
+
+class ReservationSerializer(serializers.ModelSerializer):
+    tickets = TicketSerializer(
+        many=True, read_only=True, allow_empty=False
+    )
+
+    class Meta:
+        model = Reservation
+        fields = (
+            "id",
+            "tickets",
+            "created_at",
+        )
+
+    def create(self, validated_data):
+        with transaction.atomic():
+            tickets_data = validated_data.pop("tickets")
+            reservation = Reservation.objects.create(**validated_data)
+            for ticket_data in tickets_data:
+                Ticket.objects.create(reservation=reservation, **ticket_data)
+            return reservation
+
+
+class ReservationListSerializer(ReservationSerializer):
+    tickets = TicketSerializer(many=True, read_only=True)
