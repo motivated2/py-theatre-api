@@ -5,6 +5,7 @@ from django.db.models import F, Count
 from rest_framework import viewsets, mixins
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
 
 from theatre.models import (
@@ -16,6 +17,7 @@ from theatre.models import (
     Performance,
     Ticket,
 )
+from theatre.permissions import IsAdminOrIfAuthenticatedReadOnly
 from theatre.serializers import (
     ActorSerializer,
     GenreSerializer,
@@ -32,18 +34,21 @@ class ActorViewSet(viewsets.ModelViewSet):
     queryset = Actor.objects.all()
     serializer_class = ActorSerializer
     authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class PlayViewSet(viewsets.ModelViewSet):
     queryset = Play.objects.prefetch_related("genres", "actors")
     serializer_class = PlaySerializer
     authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     @staticmethod
     def _params_to_ints(qs):
@@ -91,6 +96,7 @@ class ReservationViewSet(
     )
     serializer_class = ReservationSerializer
     authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         return Reservation.objects.filter(user=self.request.user)
@@ -109,6 +115,7 @@ class TheatreHallViewSet(viewsets.ModelViewSet):
     queryset = TheatreHall.objects.all()
     serializer_class = TheatreHallSerializer
     authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class PerformancePagination(PageNumberPagination):
@@ -131,6 +138,7 @@ class PerformanceViewSet(viewsets.ModelViewSet):
     pagination_class = PerformancePagination
     serializer_class = PerformanceSerializer
     authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_queryset(self):
         date = self.request.query_params.get("date")
@@ -161,3 +169,4 @@ class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
     authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
