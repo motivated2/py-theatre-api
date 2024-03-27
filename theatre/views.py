@@ -3,6 +3,7 @@ from datetime import datetime
 from django.db.models import F, Count
 
 from rest_framework import viewsets, mixins
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.viewsets import GenericViewSet
 
 from theatre.models import (
@@ -104,6 +105,12 @@ class TheatreHallViewSet(viewsets.ModelViewSet):
     serializer_class = TheatreHallSerializer
 
 
+class PerformancePagination(PageNumberPagination):
+    page_size = 2
+    page_size_query_param = "page_size"
+    max_page_size = 10
+
+
 class PerformanceViewSet(viewsets.ModelViewSet):
     queryset = (
         Performance.objects.all()
@@ -115,6 +122,7 @@ class PerformanceViewSet(viewsets.ModelViewSet):
             )
         )
     )
+    pagination_class = PerformancePagination
     serializer_class = PerformanceSerializer
 
     def get_queryset(self):
