@@ -33,7 +33,7 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 
 class PlayViewSet(viewsets.ModelViewSet):
-    queryset = Play.objects.all()
+    queryset = Play.objects.prefetch_related("genres", "actors")
     serializer_class = PlaySerializer
 
     def get_serializer_class(self):
