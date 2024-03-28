@@ -91,14 +91,14 @@ class Ticket(models.Model):
     )
 
     @staticmethod
-    def validate_ticket(row, seat, theatre_hall, error_to_raise):
+    def validate_ticket(row: int, seat: int, theatre_hall: TheatreHall):
         for ticket_attr_value, ticket_attr_name, theatre_hall_attr_name in [
             (row, "row", "rows"),
             (seat, "seat", "seats_in_row"),
         ]:
             count_attrs = getattr(theatre_hall, theatre_hall_attr_name)
             if not (1 <= ticket_attr_value <= count_attrs):
-                raise error_to_raise(
+                raise ValidationError(
                     {
                         ticket_attr_name: f"{ticket_attr_name} "
                                           f"number must be in available range: "
@@ -112,7 +112,6 @@ class Ticket(models.Model):
             self.row,
             self.seat,
             self.performance.theatre_hall,
-            ValidationError,
         )
 
     def save(
