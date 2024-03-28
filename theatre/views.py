@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.db.models import F, Count
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 from rest_framework import viewsets, mixins
 from rest_framework.authentication import TokenAuthentication
@@ -85,6 +86,29 @@ class PlayViewSet(viewsets.ModelViewSet):
 
         return PlaySerializer
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "title",
+                type=str,
+                description="Filter by title",
+                required=False,
+            ),
+            OpenApiParameter(
+                "genres",
+                type={"type": "list", "items": {"type": "number"}},
+                description="Filter by genres",
+            ),
+            OpenApiParameter(
+                "actors",
+                type={"type": "list", "items": {"type": "number"}},
+                description="Filter by actors",
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
 
 class ReservationViewSet(
     mixins.ListModelMixin,
@@ -163,6 +187,25 @@ class PerformanceViewSet(viewsets.ModelViewSet):
             return PerformanceDetailSerializer
 
         return PerformanceSerializer
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "date",
+                type=datetime,
+                description="Filter by date",
+                required=False,
+            ),
+            OpenApiParameter(
+                "play",
+                type=int,
+                description="Filter by play",
+                required=False,
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 
 class TicketViewSet(viewsets.ModelViewSet):
