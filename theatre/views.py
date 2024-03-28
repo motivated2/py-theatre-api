@@ -4,7 +4,6 @@ from django.db.models import F, Count
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 from rest_framework import viewsets, mixins
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
@@ -16,7 +15,6 @@ from theatre.models import (
     Reservation,
     TheatreHall,
     Performance,
-    Ticket,
 )
 from theatre.permissions import IsAdminOrIfAuthenticatedReadOnly
 from theatre.serializers import (
@@ -26,7 +24,10 @@ from theatre.serializers import (
     ReservationSerializer,
     TheatreHallSerializer,
     PerformanceSerializer,
-    TicketSerializer, PlayListSerializer, PlayDetailSerializer, PerformanceListSerializer, PerformanceDetailSerializer,
+    PlayListSerializer,
+    PlayDetailSerializer,
+    PerformanceListSerializer,
+    PerformanceDetailSerializer,
     ReservationListSerializer
 )
 
@@ -34,21 +35,18 @@ from theatre.serializers import (
 class ActorViewSet(viewsets.ModelViewSet):
     queryset = Actor.objects.all()
     serializer_class = ActorSerializer
-    authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class PlayViewSet(viewsets.ModelViewSet):
     queryset = Play.objects.prefetch_related("genres", "actors")
     serializer_class = PlaySerializer
-    authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     @staticmethod
@@ -119,7 +117,6 @@ class ReservationViewSet(
         "tickets__performance__play", "tickets__performance__theatre_hall"
     )
     serializer_class = ReservationSerializer
-    authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
@@ -138,7 +135,6 @@ class ReservationViewSet(
 class TheatreHallViewSet(viewsets.ModelViewSet):
     queryset = TheatreHall.objects.all()
     serializer_class = TheatreHallSerializer
-    authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
@@ -161,7 +157,6 @@ class PerformanceViewSet(viewsets.ModelViewSet):
     )
     pagination_class = PerformancePagination
     serializer_class = PerformanceSerializer
-    authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_queryset(self):
