@@ -15,7 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
                 "write_only": True,
                 "min_length": 5,
                 "style": {"input_type": "password"},
-                "label": _("Password")
+                "label": _("Password"),
             }
         }
 
@@ -35,28 +35,23 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class AuthTokenSerializer(serializers.Serializer):
-    email = serializers.CharField(
-        label=_("Email"),
-        write_only=True
-    )
+    email = serializers.CharField(label=_("Email"), write_only=True)
     password = serializers.CharField(
         label=_("Password"),
         style={"input_type": "password"},
         trim_whitespace=False,
-        write_only=True
+        write_only=True,
     )
-    token = serializers.CharField(
-        label=_("Token"),
-        read_only=True
-    )
+    token = serializers.CharField(label=_("Token"), read_only=True)
 
     def validate(self, attrs):
         email = attrs.get("email")
         password = attrs.get("password")
 
         if email and password:
-            user = authenticate(request=self.context.get("request"),
-                                email=email, password=password)
+            user = authenticate(
+                request=self.context.get("request"), email=email, password=password
+            )
 
             # The authenticate call simply returns None for is_active=False
             # users. (Assuming the default ModelBackend authentication

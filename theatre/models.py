@@ -26,16 +26,8 @@ class Genre(models.Model):
 class Play(models.Model):
     title = models.CharField(max_length=63)
     description = models.TextField()
-    actors = models.ManyToManyField(
-        Actor,
-        related_name="plays",
-        blank=True
-    )
-    genres = models.ManyToManyField(
-        Genre,
-        related_name="plays",
-        blank=True
-    )
+    actors = models.ManyToManyField(Actor, related_name="plays", blank=True)
+    genres = models.ManyToManyField(Genre, related_name="plays", blank=True)
 
     def __str__(self):
         return self.title
@@ -43,10 +35,7 @@ class Play(models.Model):
 
 class Reservation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
-    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.user} {self.created_at}"
@@ -67,35 +56,25 @@ class TheatreHall(models.Model):
 
 class Performance(models.Model):
     play = models.ForeignKey(
-        Play,
-        related_name="performances",
-        on_delete=models.CASCADE
+        Play, related_name="performances", on_delete=models.CASCADE
     )
     theatre_hall = models.ForeignKey(
-        TheatreHall,
-        related_name="performances",
-        on_delete=models.CASCADE
+        TheatreHall, related_name="performances", on_delete=models.CASCADE
     )
     show_time = models.DateTimeField()
 
     def __str__(self):
-        return (f"{self.play} - "
-                f"{self.theatre_hall} "
-                f"({self.show_time})")
+        return f"{self.play} - " f"{self.theatre_hall} " f"({self.show_time})"
 
 
 class Ticket(models.Model):
     row = models.PositiveIntegerField()
     seat = models.PositiveIntegerField()
     performance = models.ForeignKey(
-        Performance,
-        related_name="tickets",
-        on_delete=models.CASCADE
+        Performance, related_name="tickets", on_delete=models.CASCADE
     )
     reservation = models.ForeignKey(
-        Reservation,
-        related_name="tickets",
-        on_delete=models.CASCADE
+        Reservation, related_name="tickets", on_delete=models.CASCADE
     )
 
     @staticmethod
@@ -109,9 +88,9 @@ class Ticket(models.Model):
                 raise ValidationError(
                     {
                         ticket_attr_name: f"{ticket_attr_name} "
-                                          f"number must be in available range: "
-                                          f"(1, {theatre_hall_attr_name}): "
-                                          f"(1, {count_attrs})"
+                        f"number must be in available range: "
+                        f"(1, {theatre_hall_attr_name}): "
+                        f"(1, {count_attrs})"
                     }
                 )
 
@@ -123,11 +102,11 @@ class Ticket(models.Model):
         )
 
     def save(
-            self,
-            force_insert=False,
-            force_update=False,
-            using=None,
-            update_fields=None,
+        self,
+        force_insert=False,
+        force_update=False,
+        using=None,
+        update_fields=None,
     ):
         self.full_clean()
         return super(Ticket, self).save(
@@ -135,9 +114,11 @@ class Ticket(models.Model):
         )
 
     def __str__(self):
-        return (f"{self.performance} - "
-                f"{self.reservation} "
-                f"({self.row} - {self.seat})")
+        return (
+            f"{self.performance} - "
+            f"{self.reservation} "
+            f"({self.row} - {self.seat})"
+        )
 
     class Meta:
         unique_together = ("performance", "row", "seat")

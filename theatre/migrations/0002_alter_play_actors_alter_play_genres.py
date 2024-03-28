@@ -6,18 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('theatre', '0001_initial'),
+        ("theatre", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='play',
-            name='actors',
-            field=models.ManyToManyField(blank=True, related_name='plays', to='theatre.actor'),
+            model_name="play",
+            name="actors",
+            field=models.ManyToManyField(
+                blank=True, related_name="plays", to="theatre.actor"
+            ),
         ),
         migrations.AlterField(
-            model_name='play',
-            name='genres',
-            field=models.ManyToManyField(blank=True, related_name='plays', to='theatre.genre'),
+            model_name="play",
+            name="genres",
+            field=models.ManyToManyField(
+                blank=True, related_name="plays", to="theatre.genre"
+            ),
         ),
     ]
